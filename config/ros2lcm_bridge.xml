@@ -1,0 +1,192 @@
+<!--
+version 1.0
+
+# Introduction
+
+    This is the configuration file for the ros2lcm bridge module.
+    The bridge is bidirectional ROS <-> LCM.
+
+    The root node contains two elements:
+    - <ros2lcm>
+    - <lcm2ros>
+
+    Each children of the root node configures one direction (sub-bridge)
+    of the bridge, namely ROS->LCM and LCM->ROS.
+
+    Each sub-bridge contains one element of type <link> for each
+    topic/channel bridged.
+
+
+# Elements
+
+    - <bridge> :    (Required)
+                    Defines the root of the configuration.
+                    Contains always two children, <ros2lcm> and <lcm2ros>
+                    - - -
+                    Fields supported:
+                        (none)
+                    - - -
+                    Elements supported:
+                        - <ros2lcm>
+                        - <lcm2ros>
+
+    - <ros2lcm> :   (Required)
+                    Configures the mapping of ROS topics into their corresponding LCM channels.
+                    Contains a list of elements of type <link>.
+                    - - -
+                    Fields supported:
+                        - (bool) enabled   : Declares whether the sub-bridge is disabled
+                    - - -
+                    Elements supported:
+                        - <link>
+
+    - <lcm2ros> :   (Required)
+                    Configures the mapping of LCM channels into their corresponding ROS topics.
+                    Contains a list of elements of type <link>.
+                    - - -
+                    Fields supported:
+                        - (bool) enabled   : Declares whether the sub-bridge is disabled
+                    - - -
+                    Elements supported:
+                        - <link>
+
+    - <link> :      (Optional)
+                    Defines the mapping of a single ROS topics (or LCM channel) to its corresponding
+                    LCM channel (or ROS topic).
+                    - - -
+                    Fields supported:
+                        - (bool) enabled   : Declares whether the link is disabled
+                    - - -
+                    Elements supported:
+                        - <in>
+                        - <out>
+                        - <mapping>
+                        - <options>
+
+    - <in> :        (Required)
+                    Defines the input ROS topic (or LCM channel)
+                    - - -
+                    Fields supported:
+                        - (string) name   : Name of the ROS topic (or LCM channel)
+                        - (string) pkg    : Fully resolved name of the Python package containing the
+                                            message type expected on this ROS topic (or LCM channel),
+                                            (e.g., sensor_msgs).
+                        - (string) type   : Name of the Python class of the message type expected
+                                            on this ROS topic (or LCM channel), (e.g., Pose).
+                        - (int) queue_size: (Supports ROS topics only)
+                                            Size of the message queue. In case the bridge is not able
+                                            to process messages fast enough, the queue will store the
+                                            latest `queue_size` messages by throwing away the old
+                                            messages that were not bridged yet.
+                    - - -
+                    Elements supported:
+                        (none)
+
+    - <out> :       (Required)
+                    Defines the output LCM channel (or ROS topic)
+                    - - -
+                    Fields supported:
+                        - (string) name   : Name of the LCM channel (or ROS topic)
+                        - (string) pkg    : Fully resolved name of the Python package containing the
+                                            message type expected on this LCM channel (or ROS topic),
+                                            (e.g., sensor_msgs).
+                        - (string) type   : Name of the Python class of the message type expected
+                                            on this LCM channel (or ROS topic), (e.g., Pose).
+                        - (int) queue_size: (Supports ROS topics only)
+                                            Size of the message queue. In case the bridge is not able
+                                            to process messages fast enough, the queue will store the
+                                            latest `queue_size` messages by throwing away the old
+                                            messages that were not bridged yet.
+                        - (bool) latched  : (Supports ROS topics only)
+                                            When a connection is latched, the last message bridged on
+                                            this topic is saved and automatically sent to any future
+                                            subscribers that connect.
+                    - - -
+                    Elements supported:
+                        (none)
+
+    - <mapping> :   (Required)
+                    Defines a list of mapping actions that describe how fields of an incoming message
+                    should be used to populate the fields of the corresponding outgoing message.
+                    - - -
+                    Fields supported:
+                        (none)
+                    - - -
+                    Elements supported:
+                        - <map>
+
+    - <map> :       (Required)
+                    Describes how one field of an incoming message should be used to populate the
+                    corresponding field of the outgoing message.
+                    - - -
+                    Fields supported:
+                        - (string) from   : (optional)
+                                            String indicating the path to reach the field in
+                                            the incoming message to be mapped. Objects are
+                                            accessed using the `.` operator.
+                                            Example:
+                                                Assume that <in> refers to a ROS topic with messages
+                                                of type `sensor_msgs/Image`. We can access the `frame_id`
+                                                field of the message's header by setting `from` to be
+
+                                                    "header.frame_id"
+
+                                                Please, see (http://docs.ros.org/melodic/api/sensor_msgs/html/msg/Image.html)
+                                                for further details about the `sensor_msgs/Image` message type.
+                        - (string) to     : (optional)
+                                            String indicating the path to reach the field in
+                                            the outgoing message to be populated. Objects are
+                                            accessed in the same way defined in the description of the `from`
+                                            field above.
+                        - (string) code   : (optional)
+                                            TODO
+                    - - -
+                    Elements supported:
+                        - <map>
+
+
+
+# The `enable` field
+
+    All the elements of type <ros2lcm>, <lcm2ros>, <link>, support the field `enabled`.
+    The value of this field can be "true" or "false". Elements with the flag `enable="false"`
+    are not considered, thus, they do not have effect on the configuration of the bridge.
+
+    Note: When an element of type <ros2lcm>, <lcm2ros> is disabled, all its children
+    (i.e., <link> elements) are disabled, even though they have the `enable=` field set to "true".
+
+-->
+
+<bridge>
+    <ros2lcm enabled="true">
+        <link enabled="true">
+            <in name="/pose" pkg="geometry_msgs" type="Pose" queue_size="1"/>
+            <out name="POSE" pkg="bot_core" type="pose_t"/>
+            <mapping>
+                <map from="position.x" to="pos[0]"/>
+                <map from="position.y" to="pos[1]"/>
+                <map from="position.z" to="pos[2]"/>
+                <map from="orientation.x" to="pos[1]"/>
+                <map from="orientation.y" to="pos[2]"/>
+                <map from="orientation.z" to="pos[3]"/>
+                <map from="orientation.w" to="pos[0]"/>
+            </mapping>
+            <options>
+                <option key="bridge_time" value="true"/>
+            </options>
+        </link>
+    </ros2lcm>
+    <lcm2ros enabled="true">
+        <link enabled="false">
+            <in name="TOPIC_NAME" pkg="asd" type="asds"/>
+            <out name="CHANNEL_NAME" pkg="asd" type="" queue_size="1" latched="false"/>
+            <mapping>
+                <map from="" to=""/>
+                <map code=""/>
+            </mapping>
+            <options>
+                <option key="bridge_time" value="true"/>
+            </options>
+        </link>
+    </lcm2ros>
+</bridge>
