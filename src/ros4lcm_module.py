@@ -336,6 +336,6 @@ if __name__ == '__main__':
     sys.path = [TEMP_DIR] + sys.path
     exec( 'from %s import ROS4LCM_BridgeModule' % filename )
 
-    # create bridge module and start it
+    # create bridge module and launch it
     bridge = ROS4LCM_BridgeModule(DIRECTION)
     bridge.start()
