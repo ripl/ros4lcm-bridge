@@ -166,10 +166,10 @@ version 1.0
                 <map from="position.x" to="pos[0]"/>
                 <map from="position.y" to="pos[1]"/>
                 <map from="position.z" to="pos[2]"/>
-                <map from="orientation.x" to="pos[1]"/>
-                <map from="orientation.y" to="pos[2]"/>
-                <map from="orientation.z" to="pos[3]"/>
-                <map from="orientation.w" to="pos[0]"/>
+                <map from="orientation.x" to="orientation[1]"/>
+                <map from="orientation.y" to="orientation[2]"/>
+                <map from="orientation.z" to="orientation[3]"/>
+                <map from="orientation.w" to="orientation[0]"/>
             </mapping>
             <options>
                 <option key="bridge_time" value="true"/>
